@@ -1,1 +1,182 @@
-
+[
+  {
+    "id": 1,
+    "title": "Metamorphosis One",
+    "year": 1988,
+    "duration_secs": 312,
+    "genre": "keyboard",
+    "dims": { "joy": 0.35, "sorrow": 0.75, "intensity": 0.30, "density": 0.20, "velocity": 0.15 },
+    "note": "From Solo Piano. Sparse, reflective."
+  },
+  {
+    "id": 2,
+    "title": "Metamorphosis Two",
+    "year": 1988,
+    "duration_secs": 274,
+    "genre": "keyboard",
+    "dims": { "joy": 0.40, "sorrow": 0.60, "intensity": 0.35, "density": 0.30, "velocity": 0.25 },
+    "note": null
+  },
+  {
+    "id": 3,
+    "title": "Koyaanisqatsi — Opening",
+    "year": 1982,
+    "duration_secs": 390,
+    "genre": "film_score",
+    "dims": { "joy": 0.10, "sorrow": 0.55, "intensity": 0.80, "density": 0.85, "velocity": 0.20 },
+    "note": "Low, rumbling choir. Ominous grandeur."
+  },
+  {
+    "id": 4,
+    "title": "Koyaanisqatsi — Cloudscape",
+    "year": 1982,
+    "duration_secs": 258,
+    "genre": "film_score",
+    "dims": { "joy": 0.55, "sorrow": 0.20, "intensity": 0.40, "density": 0.30, "velocity": 0.35 },
+    "note": null
+  },
+  {
+    "id": 5,
+    "title": "Einstein on the Beach — Knee Play 1",
+    "year": 1976,
+    "duration_secs": 480,
+    "genre": "opera",
+    "dims": { "joy": 0.50, "sorrow": 0.30, "intensity": 0.45, "density": 0.60, "velocity": 0.55 },
+    "note": "Counting and solfège. Hypnotic."
+  },
+  {
+    "id": 6,
+    "title": "Einstein on the Beach — Spaceship",
+    "year": 1976,
+    "duration_secs": 1320,
+    "genre": "opera",
+    "dims": { "joy": 0.60, "sorrow": 0.15, "intensity": 0.90, "density": 0.95, "velocity": 0.80 },
+    "note": "The climactic finale. Maximum density."
+  },
+  {
+    "id": 7,
+    "title": "Glassworks — Opening",
+    "year": 1982,
+    "duration_secs": 195,
+    "genre": "chamber",
+    "dims": { "joy": 0.65, "sorrow": 0.35, "intensity": 0.40, "density": 0.35, "velocity": 0.40 },
+    "note": "Glass's most accessible work. Warm and inviting."
+  },
+  {
+    "id": 8,
+    "title": "Glassworks — Floe",
+    "year": 1982,
+    "duration_secs": 225,
+    "genre": "chamber",
+    "dims": { "joy": 0.70, "sorrow": 0.10, "intensity": 0.75, "density": 0.70, "velocity": 0.85 },
+    "note": "Energetic, cascading arpeggios."
+  },
+  {
+    "id": 9,
+    "title": "Violin Concerto No. 1 — I",
+    "year": 1987,
+    "duration_secs": 480,
+    "genre": "orchestral",
+    "dims": { "joy": 0.45, "sorrow": 0.50, "intensity": 0.60, "density": 0.55, "velocity": 0.50 },
+    "note": null
+  },
+  {
+    "id": 10,
+    "title": "Violin Concerto No. 1 — II",
+    "year": 1987,
+    "duration_secs": 420,
+    "genre": "orchestral",
+    "dims": { "joy": 0.30, "sorrow": 0.70, "intensity": 0.45, "density": 0.40, "velocity": 0.30 },
+    "note": "Lyrical and melancholic."
+  },
+  {
+    "id": 11,
+    "title": "Akhnaten — Prelude",
+    "year": 1984,
+    "duration_secs": 360,
+    "genre": "opera",
+    "dims": { "joy": 0.20, "sorrow": 0.65, "intensity": 0.55, "density": 0.50, "velocity": 0.20 },
+    "note": "Ancient Egypt retold through minimalism."
+  },
+  {
+    "id": 12,
+    "title": "Music in Twelve Parts — Part 1",
+    "year": 1974,
+    "duration_secs": 1800,
+    "genre": "chamber",
+    "dims": { "joy": 0.55, "sorrow": 0.25, "intensity": 0.65, "density": 0.75, "velocity": 0.70 },
+    "note": "Early phase music. Additive process in full."
+  },
+  {
+    "id": 13,
+    "title": "The Hours — Morning Passages",
+    "year": 2002,
+    "duration_secs": 228,
+    "genre": "film_score",
+    "dims": { "joy": 0.40, "sorrow": 0.60, "intensity": 0.50, "density": 0.40, "velocity": 0.45 },
+    "note": "Oscar-nominated score. Quiet urgency."
+  },
+  {
+    "id": 14,
+    "title": "Satyagraha — Act I Scene 1",
+    "year": 1980,
+    "duration_secs": 720,
+    "genre": "opera",
+    "dims": { "joy": 0.35, "sorrow": 0.45, "intensity": 0.70, "density": 0.65, "velocity": 0.40 },
+    "note": "Sanskrit libretto. Gandhi's early life."
+  },
+  {
+    "id": 15,
+    "title": "Mad Rush",
+    "year": 1979,
+    "duration_secs": 780,
+    "genre": "keyboard",
+    "dims": { "joy": 0.60, "sorrow": 0.20, "intensity": 0.80, "density": 0.80, "velocity": 0.90 },
+    "note": "Relentless, joyful momentum."
+  },
+  {
+    "id": 16,
+    "title": "String Quartet No. 3 — I",
+    "year": 1991,
+    "duration_secs": 360,
+    "genre": "chamber",
+    "dims": { "joy": 0.45, "sorrow": 0.55, "intensity": 0.50, "density": 0.45, "velocity": 0.40 },
+    "note": null
+  },
+  {
+    "id": 17,
+    "title": "Low Symphony — I",
+    "year": 1992,
+    "duration_secs": 540,
+    "genre": "orchestral",
+    "dims": { "joy": 0.25, "sorrow": 0.70, "intensity": 0.65, "density": 0.60, "velocity": 0.35 },
+    "note": "Based on Bowie/Eno's Low. Brooding."
+  },
+  {
+    "id": 18,
+    "title": "Naqoyqatsi — Naqoyqatsi",
+    "year": 2002,
+    "duration_secs": 315,
+    "genre": "film_score",
+    "dims": { "joy": 0.15, "sorrow": 0.80, "intensity": 0.75, "density": 0.70, "velocity": 0.50 },
+    "note": "Cello solo by Yo-Yo Ma. Deeply mournful."
+  },
+  {
+    "id": 19,
+    "title": "Etude No. 6",
+    "year": 1994,
+    "duration_secs": 195,
+    "genre": "keyboard",
+    "dims": { "joy": 0.80, "sorrow": 0.10, "intensity": 0.70, "density": 0.65, "velocity": 0.95 },
+    "note": "Fast, technically demanding, exhilarating."
+  },
+  {
+    "id": 20,
+    "title": "Façades",
+    "year": 1982,
+    "duration_secs": 285,
+    "genre": "chamber",
+    "dims": { "joy": 0.45, "sorrow": 0.60, "intensity": 0.30, "density": 0.25, "velocity": 0.20 },
+    "note": "From Glassworks. Saxophone and strings. Dusk-like."
+  }
+]
