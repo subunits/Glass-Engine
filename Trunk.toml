@@ -1,0 +1,12 @@
+[build]
+target = "index.html"
+dist = "dist"
+
+[watch]
+# Rebuild on changes to src/ and data/
+paths = ["src", "data", "styles", "index.html"]
+
+[serve]
+address = "127.0.0.1"
+port = 8080
+open = false
