@@ -1,1 +1,264 @@
+/* ── Design tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg:          #0d0d0f;
+  --surface:     #16161a;
+  --border:      #2a2a33;
+  --accent:      #7c6fcd;
+  --accent-hi:   #a89ee8;
+  --text:        #e4e4f0;
+  --text-muted:  #7a7a99;
+  --track-h:     4px;
+  --radius:      6px;
+  --font:        'IBM Plex Mono', ui-monospace, monospace;
+}
 
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────────────── */
+.glass-engine { display: flex; flex-direction: column; min-height: 100vh; }
+
+.ge-header {
+  padding: 2rem 2.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.ge-header h1 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-hi);
+}
+.ge-subtitle { color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem; }
+
+.ge-main {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  flex: 1;
+}
+
+.ge-sidebar {
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.ge-content {
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Panel titles ───────────────────────────────────────────────────────────── */
+.ge-panel-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+/* ── Dual-handle sliders ────────────────────────────────────────────────────── */
+.ge-slider-panel { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.ge-slider { display: flex; flex-direction: column; gap: 0.4rem; }
+
+.ge-slider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.ge-slider-label  { font-size: 0.75rem; color: var(--text); }
+.ge-slider-values { font-size: 0.65rem; color: var(--text-muted); }
+
+/* Track container — position:relative so handles stack over fill bar */
+.ge-slider-track {
+  position: relative;
+  height: calc(var(--track-h) + 28px); /* room for the thumb */
+  display: flex;
+  align-items: center;
+}
+
+/* Coloured fill between handles */
+.ge-slider-fill {
+  position: absolute;
+  height: var(--track-h);
+  background: var(--accent);
+  border-radius: 2px;
+  pointer-events: none;
+  top: 50%; transform: translateY(-50%);
+}
+
+/* Both range inputs overlay each other */
+.ge-range {
+  position: absolute;
+  width: 100%;
+  height: var(--track-h);
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  outline: none;
+  top: 50%; transform: translateY(-50%);
+}
+.ge-range::-webkit-slider-runnable-track {
+  height: var(--track-h);
+  background: var(--border);
+  border-radius: 2px;
+}
+.ge-range::-moz-range-track {
+  height: var(--track-h);
+  background: var(--border);
+  border-radius: 2px;
+}
+.ge-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  pointer-events: all;
+  margin-top: calc((var(--track-h) - 14px) / 2);
+  transition: background 0.15s;
+}
+.ge-range::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--accent-hi);
+  border: 2px solid var(--bg);
+  cursor: pointer;
+  pointer-events: all;
+}
+.ge-range:hover::-webkit-slider-thumb { background: #fff; }
+.ge-range:hover::-moz-range-thumb     { background: #fff; }
+
+/* ── Genre filter ───────────────────────────────────────────────────────────── */
+.ge-genre-filter { display: flex; flex-direction: column; gap: 0.5rem; }
+.ge-genre-filter label {
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.ge-genre-filter select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius);
+  font-family: var(--font);
+  font-size: 0.75rem;
+  cursor: pointer;
+  outline: none;
+}
+.ge-genre-filter select:focus { border-color: var(--accent); }
+
+/* ── Timeline ───────────────────────────────────────────────────────────────── */
+.ge-timeline { display: flex; flex-direction: column; gap: 0.5rem; }
+.ge-timeline-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.ge-timeline-range { font-size: 0.7rem; color: var(--text-muted); }
+.ge-timeline-track { width: 100%; }
+
+/* ── Track results ──────────────────────────────────────────────────────────── */
+.ge-results { flex: 1; }
+.ge-empty { color: var(--text-muted); font-size: 0.8rem; padding: 1rem 0; }
+
+.ge-track-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ge-track {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  transition: border-color 0.15s;
+}
+.ge-track:hover { border-color: var(--accent); }
+
+.ge-track-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.ge-track-title { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.ge-track-info  { font-size: 0.68rem; color: var(--text-muted); white-space: nowrap; }
+
+/* Score bar */
+.ge-score-bar-bg {
+  position: relative;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: visible;
+}
+.ge-score-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.2s ease;
+}
+.ge-score-label {
+  position: absolute;
+  right: 0; top: -14px;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+}
+
+/* Dim dots */
+.ge-dims {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-top: 0.1rem;
+}
+.ge-dim-dot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  cursor: default;
+}
+.ge-dim-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.ge-dot {
+  display: block;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: width 0.2s, height 0.2s, opacity 0.2s;
+}
+
+.ge-track-note {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-style: italic;
+  margin-top: 0.1rem;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .ge-main { grid-template-columns: 1fr; }
+  .ge-sidebar { border-right: none; border-bottom: 1px solid var(--border); }
+}
