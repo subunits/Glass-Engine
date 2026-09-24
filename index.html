@@ -16,29 +16,10 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
 .page{max-width:900px;margin:0 auto;padding:2rem 1.25rem 5rem}
 
-/* tabs */
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem}
-.tab{padding:.5rem 1.25rem;cursor:pointer;border:none;background:none;color:var(--muted);font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid transparent;transition:.15s}
-.tab.active{color:var(--accent-hi);border-bottom-color:var(--accent)}
-.panel{display:none}.panel.active{display:block}
-
 /* header */
 .header{padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
 .header h1{font-size:1.4rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-hi)}
 .header p{color:var(--muted);font-size:.8rem;margin-top:.25rem}
-
-/* test panel */
-.test-suite{display:flex;flex-direction:column;gap:.5rem}
-.test{display:flex;align-items:center;gap:.75rem;padding:.6rem .85rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:.78rem}
-.test .icon{font-size:1rem;min-width:1.2rem}
-.test .name{flex:1;color:var(--text)}
-.test .result{font-size:.7rem;color:var(--muted)}
-.test.pass .icon::before{content:"✓";color:var(--green)}
-.test.fail .icon::before{content:"✗";color:var(--red)}
-.test.pending .icon::before{content:"○";color:var(--muted)}
-.test-summary{margin-top:1rem;padding:.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:.8rem}
-.run-btn{padding:.5rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:1.5rem}
-.run-btn:hover{background:var(--accent-hi);color:#0d0d0f}
 
 /* engine UI */
 .ge-main{display:grid;grid-template-columns:260px 1fr;gap:2rem}
@@ -92,57 +73,42 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
     <p>Multi-dimensional music similarity search — flat JS port of the Rust engine</p>
   </div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="switchTab('tests')">Unit tests</button>
-    <button class="tab" onclick="switchTab('engine')">Engine</button>
-  </div>
-
-  <!-- TESTS PANEL -->
-  <div id="panel-tests" class="panel active">
-    <button class="run-btn" onclick="runTests()">Run all tests</button>
-    <div class="test-suite" id="test-suite"></div>
-    <div class="test-summary" id="test-summary" style="display:none"></div>
-  </div>
-
-  <!-- ENGINE PANEL -->
-  <div id="panel-engine" class="panel">
-    <div class="ge-main">
-      <aside class="ge-sidebar">
-        <div>
-          <span class="panel-title">Dimensions</span>
-          <div id="sliders"></div>
-        </div>
-        <div>
-          <span class="panel-title">Genre</span>
-          <select class="ge-select" id="genre-filter" onchange="renderResults()">
-            <option value="all">All genres</option>
-            <option value="opera">Opera</option>
-            <option value="film_score">Film Score</option>
-            <option value="chamber">Chamber</option>
-            <option value="orchestral">Orchestral</option>
-            <option value="keyboard">Keyboard</option>
-            <option value="choral">Choral</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <div class="ge-timeline">
-            <div class="ge-timeline-header">
-              <span class="panel-title" style="margin:0">Timeline</span>
-              <span class="ge-slider-values" id="year-label">1960 – 2030</span>
-            </div>
-            <div class="ge-slider-track">
-              <div class="ge-fill" id="year-fill"></div>
-              <input class="ge-range" type="range" min="1960" max="2030" value="1960" id="year-lo" oninput="onYearLo()">
-              <input class="ge-range" type="range" min="1960" max="2030" value="2030" id="year-hi" oninput="onYearHi()">
-            </div>
+  <div class="ge-main">
+    <aside class="ge-sidebar">
+      <div>
+        <span class="panel-title">Dimensions</span>
+        <div id="sliders"></div>
+      </div>
+      <div>
+        <span class="panel-title">Genre</span>
+        <select class="ge-select" id="genre-filter" onchange="renderResults()">
+          <option value="all">All genres</option>
+          <option value="opera">Opera</option>
+          <option value="film_score">Film Score</option>
+          <option value="chamber">Chamber</option>
+          <option value="orchestral">Orchestral</option>
+          <option value="keyboard">Keyboard</option>
+          <option value="choral">Choral</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div>
+        <div class="ge-timeline">
+          <div class="ge-timeline-header">
+            <span class="panel-title" style="margin:0">Timeline</span>
+            <span class="ge-slider-values" id="year-label">1960 – 2030</span>
+          </div>
+          <div class="ge-slider-track">
+            <div class="ge-fill" id="year-fill"></div>
+            <input class="ge-range" type="range" min="1960" max="2030" value="1960" id="year-lo" oninput="onYearLo()">
+            <input class="ge-range" type="range" min="1960" max="2030" value="2030" id="year-hi" oninput="onYearHi()">
           </div>
         </div>
-      </aside>
-      <section>
-        <div id="results" class="ge-results"></div>
-      </section>
-    </div>
+      </div>
+    </aside>
+    <section>
+      <div id="results" class="ge-results"></div>
+    </section>
   </div>
 </div>
 
@@ -171,7 +137,7 @@ const CATALOG = [
   {id:20,title:"Façades",year:1982,duration_secs:285,genre:"chamber",dims:{joy:.45,sorrow:.60,intensity:.30,density:.25,velocity:.20},note:"From Glassworks. Saxophone and strings. Dusk-like."}
 ];
 
-// ── Engine (mirrors Rust logic exactly) ──────────────────────────────────────
+// ── Engine ───────────────────────────────────────────────────────────────────
 const DIMS = ['joy','sorrow','intensity','density','velocity'];
 
 function midpoint(range){ return (range.lo + range.hi) / 2; }
@@ -209,118 +175,6 @@ function search(tracks, query){
 function durStr(secs){ return `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`; }
 
 function genreLabel(g){ return {opera:'Opera',film_score:'Film Score',chamber:'Chamber',orchestral:'Orchestral',keyboard:'Keyboard',choral:'Choral',other:'Other'}[g] || g; }
-
-// ── Unit Tests ────────────────────────────────────────────────────────────────
-function makeCatalog(){
-  return [
-    {id:1,title:'Track 1',year:1980,genre:'chamber',dims:{joy:.9,sorrow:.1,intensity:.5,density:.5,velocity:.5}},
-    {id:2,title:'Track 2',year:1985,genre:'opera',dims:{joy:.1,sorrow:.9,intensity:.5,density:.5,velocity:.5}},
-    {id:3,title:'Track 3',year:2000,genre:'film_score',dims:{joy:.5,sorrow:.5,intensity:.5,density:.5,velocity:.5}},
-    {id:4,title:'Track 4',year:1990,genre:'chamber',dims:{joy:.8,sorrow:.2,intensity:.5,density:.5,velocity:.5}}
-  ];
-}
-
-function assert(cond, msg){ if(!cond) throw new Error(msg); }
-
-const TESTS = [
-  {
-    name: 'search_returns_closest_to_target',
-    fn(){
-      const tracks = makeCatalog();
-      const q = { joy:{lo:.8,hi:1}, sorrow:{lo:0,hi:.2}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'all', topK:10 };
-      const r = search(tracks, q);
-      assert(r.length > 0, 'no results');
-      assert(r[0].track.id === 1, `expected id 1, got ${r[0].track.id}`);
-    }
-  },
-  {
-    name: 'genre_filter_excludes_non_matching',
-    fn(){
-      const tracks = makeCatalog();
-      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'opera', topK:10 };
-      const r = search(tracks, q);
-      assert(r.every(x => x.track.genre === 'opera'), 'non-opera slipped through');
-    }
-  },
-  {
-    name: 'year_range_filter_works',
-    fn(){
-      const tracks = makeCatalog();
-      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1984,1992], genre:'all', topK:10 };
-      const r = search(tracks, q);
-      const ids = r.map(x => x.track.id);
-      assert(ids.includes(2), 'track 2 (1985) should be included');
-      assert(ids.includes(4), 'track 4 (1990) should be included');
-      assert(!ids.includes(1), 'track 1 (1980) should be excluded');
-      assert(!ids.includes(3), 'track 3 (2000) should be excluded');
-    }
-  },
-  {
-    name: 'top_k_limits_results',
-    fn(){
-      const tracks = makeCatalog();
-      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'all', topK:2 };
-      const r = search(tracks, q);
-      assert(r.length <= 2, `expected ≤2, got ${r.length}`);
-    }
-  },
-  {
-    name: 'scores_are_normalised_0_to_1',
-    fn(){
-      const tracks = makeCatalog();
-      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'all', topK:10 };
-      const r = search(tracks, q);
-      assert(r.every(x => x.score >= 0 && x.score <= 1), 'score out of [0,1]');
-      assert(Math.abs(r[0].score - 1) < 1e-9, `best score should be 1, got ${r[0].score}`);
-    }
-  },
-  {
-    name: 'dim_range_midpoint',
-    fn(){
-      const r = {lo:.2, hi:.8};
-      assert(Math.abs(midpoint(r) - .5) < 1e-9, `expected 0.5, got ${midpoint(r)}`);
-    }
-  },
-  {
-    name: 'weighted_dist_sq_zero_for_same_point',
-    fn(){
-      const d = {joy:.3,sorrow:.7,intensity:.5,density:.2,velocity:.9};
-      const w = {joy:1,sorrow:1,intensity:1,density:1,velocity:1};
-      assert(weightedDistSq(d, d, w) < 1e-12, 'distance to self should be 0');
-    }
-  }
-];
-
-let testResults = TESTS.map(t => ({ name: t.name, status: 'pending', error: null }));
-
-function runTests(){
-  testResults = TESTS.map(t => {
-    try { t.fn(); return { name: t.name, status: 'pass', error: null }; }
-    catch(e) { return { name: t.name, status: 'fail', error: e.message }; }
-  });
-  renderTests();
-}
-
-function renderTests(){
-  const suite = document.getElementById('test-suite');
-  suite.innerHTML = testResults.map(r => `
-    <div class="test ${r.status}">
-      <span class="icon"></span>
-      <span class="name">${r.name}</span>
-      <span class="result">${r.error || ''}</span>
-    </div>
-  `).join('');
-
-  const passed = testResults.filter(r => r.status === 'pass').length;
-  const failed = testResults.filter(r => r.status === 'fail').length;
-  const pending = testResults.filter(r => r.status === 'pending').length;
-  const summary = document.getElementById('test-summary');
-  summary.style.display = 'block';
-  summary.style.color = failed ? 'var(--red)' : pending ? 'var(--muted)' : 'var(--green)';
-  summary.textContent = pending
-    ? `${TESTS.length} tests pending`
-    : `${passed} passed · ${failed} failed · ${TESTS.length} total`;
-}
 
 // ── Slider state ──────────────────────────────────────────────────────────────
 const state = {
@@ -451,19 +305,11 @@ function renderResults(){
   }).join('');
 }
 
-// ── Tab switching ─────────────────────────────────────────────────────────────
-function switchTab(id){
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['tests','engine'][i] === id));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(`panel-${id}`).classList.add('active');
-}
-
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildSliders();
 DIMS.forEach(d => updateSliderUI(d));
 updateYearUI();
 renderResults();
-renderTests();
 </script>
 </body>
 </html>
