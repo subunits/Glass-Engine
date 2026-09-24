@@ -1,15 +1,448 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Glass Engine</title>
-    <!-- Trunk injects the WASM bundle here -->
-    <link data-trunk rel="rust" data-wasm-opt="z" />
-    <link data-trunk rel="css" href="styles/main.css" />
-  </head>
-  <body>
-    <!-- Leptos mounts here -->
-    <div id="app"></div>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Glass Engine</title>
+<style>
+:root {
+  --bg: #0d0d0f; --surface: #16161a; --border: #2a2a33;
+  --accent: #7c6fcd; --accent-hi: #a89ee8;
+  --text: #e4e4f0; --muted: #7a7a99; --green: #4ade80; --red: #f87171;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.page{max-width:900px;margin:0 auto;padding:2rem 1.25rem 5rem}
+
+/* tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.tab{padding:.5rem 1.25rem;cursor:pointer;border:none;background:none;color:var(--muted);font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid transparent;transition:.15s}
+.tab.active{color:var(--accent-hi);border-bottom-color:var(--accent)}
+.panel{display:none}.panel.active{display:block}
+
+/* header */
+.header{padding-bottom:1.5rem;border-bottom:1px solid var(--border);margin-bottom:2rem}
+.header h1{font-size:1.4rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-hi)}
+.header p{color:var(--muted);font-size:.8rem;margin-top:.25rem}
+
+/* test panel */
+.test-suite{display:flex;flex-direction:column;gap:.5rem}
+.test{display:flex;align-items:center;gap:.75rem;padding:.6rem .85rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:.78rem}
+.test .icon{font-size:1rem;min-width:1.2rem}
+.test .name{flex:1;color:var(--text)}
+.test .result{font-size:.7rem;color:var(--muted)}
+.test.pass .icon::before{content:"✓";color:var(--green)}
+.test.fail .icon::before{content:"✗";color:var(--red)}
+.test.pending .icon::before{content:"○";color:var(--muted)}
+.test-summary{margin-top:1rem;padding:.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:.8rem}
+.run-btn{padding:.5rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;margin-bottom:1.5rem}
+.run-btn:hover{background:var(--accent-hi);color:#0d0d0f}
+
+/* engine UI */
+.ge-main{display:grid;grid-template-columns:260px 1fr;gap:2rem}
+@media(max-width:640px){.ge-main{grid-template-columns:1fr}}
+.ge-sidebar{display:flex;flex-direction:column;gap:1.5rem}
+.panel-title{font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.75rem}
+
+/* dual slider */
+.ge-slider{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.85rem}
+.ge-slider-header{display:flex;justify-content:space-between;align-items:baseline}
+.ge-slider-label{font-size:.75rem}
+.ge-slider-values{font-size:.65rem;color:var(--muted)}
+.ge-slider-track{position:relative;height:32px;display:flex;align-items:center}
+.ge-fill{position:absolute;height:4px;background:var(--accent);border-radius:2px;pointer-events:none;top:50%;transform:translateY(-50%)}
+.ge-range{position:absolute;width:100%;height:4px;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;outline:none;top:50%;transform:translateY(-50%)}
+.ge-range::-webkit-slider-runnable-track{height:4px;background:var(--border);border-radius:2px}
+.ge-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-hi);border:2px solid var(--bg);cursor:pointer;pointer-events:all;margin-top:-5px}
+.ge-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent-hi);border:2px solid var(--bg);cursor:pointer;pointer-events:all}
+
+/* genre select */
+.ge-select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.4rem .6rem;border-radius:6px;font-family:var(--mono);font-size:.75rem;width:100%;cursor:pointer;outline:none}
+.ge-select:focus{border-color:var(--accent)}
+
+/* results */
+.ge-results{display:flex;flex-direction:column;gap:.65rem}
+.ge-track{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:.75rem .9rem;display:flex;flex-direction:column;gap:.4rem;transition:border-color .15s}
+.ge-track:hover{border-color:var(--accent)}
+.ge-track-meta{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem}
+.ge-track-title{font-size:.85rem;font-weight:600}
+.ge-track-info{font-size:.65rem;color:var(--muted);white-space:nowrap}
+.ge-score-bg{position:relative;height:3px;background:var(--border);border-radius:2px}
+.ge-score-bar{height:100%;background:var(--accent);border-radius:2px;transition:width .2s}
+.ge-score-label{position:absolute;right:0;top:-14px;font-size:.6rem;color:var(--muted)}
+.ge-dims{display:flex;gap:.65rem;align-items:flex-end;margin-top:.1rem}
+.ge-dim{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:default}
+.ge-dim-label{font-size:.55rem;color:var(--muted)}
+.ge-dot{display:block;border-radius:50%;background:var(--accent)}
+.ge-note{font-size:.68rem;color:var(--muted);font-style:italic}
+.ge-empty{color:var(--muted);font-size:.8rem;padding:1rem 0}
+
+/* timeline */
+.ge-timeline{margin-bottom:.5rem}
+.ge-timeline-header{display:flex;justify-content:space-between;margin-bottom:.4rem}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <h1>Glass Engine</h1>
+    <p>Multi-dimensional music similarity search — flat JS port of the Rust engine</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tests')">Unit tests</button>
+    <button class="tab" onclick="switchTab('engine')">Engine</button>
+  </div>
+
+  <!-- TESTS PANEL -->
+  <div id="panel-tests" class="panel active">
+    <button class="run-btn" onclick="runTests()">Run all tests</button>
+    <div class="test-suite" id="test-suite"></div>
+    <div class="test-summary" id="test-summary" style="display:none"></div>
+  </div>
+
+  <!-- ENGINE PANEL -->
+  <div id="panel-engine" class="panel">
+    <div class="ge-main">
+      <aside class="ge-sidebar">
+        <div>
+          <span class="panel-title">Dimensions</span>
+          <div id="sliders"></div>
+        </div>
+        <div>
+          <span class="panel-title">Genre</span>
+          <select class="ge-select" id="genre-filter" onchange="renderResults()">
+            <option value="all">All genres</option>
+            <option value="opera">Opera</option>
+            <option value="film_score">Film Score</option>
+            <option value="chamber">Chamber</option>
+            <option value="orchestral">Orchestral</option>
+            <option value="keyboard">Keyboard</option>
+            <option value="choral">Choral</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <div class="ge-timeline">
+            <div class="ge-timeline-header">
+              <span class="panel-title" style="margin:0">Timeline</span>
+              <span class="ge-slider-values" id="year-label">1960 – 2030</span>
+            </div>
+            <div class="ge-slider-track">
+              <div class="ge-fill" id="year-fill"></div>
+              <input class="ge-range" type="range" min="1960" max="2030" value="1960" id="year-lo" oninput="onYearLo()">
+              <input class="ge-range" type="range" min="1960" max="2030" value="2030" id="year-hi" oninput="onYearHi()">
+            </div>
+          </div>
+        </div>
+      </aside>
+      <section>
+        <div id="results" class="ge-results"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Catalog ──────────────────────────────────────────────────────────────────
+const CATALOG = [
+  {id:1,title:"Metamorphosis One",year:1988,duration_secs:312,genre:"keyboard",dims:{joy:.35,sorrow:.75,intensity:.30,density:.20,velocity:.15},note:"From Solo Piano. Sparse, reflective."},
+  {id:2,title:"Metamorphosis Two",year:1988,duration_secs:274,genre:"keyboard",dims:{joy:.40,sorrow:.60,intensity:.35,density:.30,velocity:.25},note:null},
+  {id:3,title:"Koyaanisqatsi — Opening",year:1982,duration_secs:390,genre:"film_score",dims:{joy:.10,sorrow:.55,intensity:.80,density:.85,velocity:.20},note:"Low, rumbling choir. Ominous grandeur."},
+  {id:4,title:"Koyaanisqatsi — Cloudscape",year:1982,duration_secs:258,genre:"film_score",dims:{joy:.55,sorrow:.20,intensity:.40,density:.30,velocity:.35},note:null},
+  {id:5,title:"Einstein on the Beach — Knee Play 1",year:1976,duration_secs:480,genre:"opera",dims:{joy:.50,sorrow:.30,intensity:.45,density:.60,velocity:.55},note:"Counting and solfège. Hypnotic."},
+  {id:6,title:"Einstein on the Beach — Spaceship",year:1976,duration_secs:1320,genre:"opera",dims:{joy:.60,sorrow:.15,intensity:.90,density:.95,velocity:.80},note:"The climactic finale. Maximum density."},
+  {id:7,title:"Glassworks — Opening",year:1982,duration_secs:195,genre:"chamber",dims:{joy:.65,sorrow:.35,intensity:.40,density:.35,velocity:.40},note:"Glass's most accessible work. Warm and inviting."},
+  {id:8,title:"Glassworks — Floe",year:1982,duration_secs:225,genre:"chamber",dims:{joy:.70,sorrow:.10,intensity:.75,density:.70,velocity:.85},note:"Energetic, cascading arpeggios."},
+  {id:9,title:"Violin Concerto No. 1 — I",year:1987,duration_secs:480,genre:"orchestral",dims:{joy:.45,sorrow:.50,intensity:.60,density:.55,velocity:.50},note:null},
+  {id:10,title:"Violin Concerto No. 1 — II",year:1987,duration_secs:420,genre:"orchestral",dims:{joy:.30,sorrow:.70,intensity:.45,density:.40,velocity:.30},note:"Lyrical and melancholic."},
+  {id:11,title:"Akhnaten — Prelude",year:1984,duration_secs:360,genre:"opera",dims:{joy:.20,sorrow:.65,intensity:.55,density:.50,velocity:.20},note:"Ancient Egypt retold through minimalism."},
+  {id:12,title:"Music in Twelve Parts — Part 1",year:1974,duration_secs:1800,genre:"chamber",dims:{joy:.55,sorrow:.25,intensity:.65,density:.75,velocity:.70},note:"Early phase music. Additive process in full."},
+  {id:13,title:"The Hours — Morning Passages",year:2002,duration_secs:228,genre:"film_score",dims:{joy:.40,sorrow:.60,intensity:.50,density:.40,velocity:.45},note:"Oscar-nominated score. Quiet urgency."},
+  {id:14,title:"Satyagraha — Act I Scene 1",year:1980,duration_secs:720,genre:"opera",dims:{joy:.35,sorrow:.45,intensity:.70,density:.65,velocity:.40},note:"Sanskrit libretto. Gandhi's early life."},
+  {id:15,title:"Mad Rush",year:1979,duration_secs:780,genre:"keyboard",dims:{joy:.60,sorrow:.20,intensity:.80,density:.80,velocity:.90},note:"Relentless, joyful momentum."},
+  {id:16,title:"String Quartet No. 3 — I",year:1991,duration_secs:360,genre:"chamber",dims:{joy:.45,sorrow:.55,intensity:.50,density:.45,velocity:.40},note:null},
+  {id:17,title:"Low Symphony — I",year:1992,duration_secs:540,genre:"orchestral",dims:{joy:.25,sorrow:.70,intensity:.65,density:.60,velocity:.35},note:"Based on Bowie/Eno's Low. Brooding."},
+  {id:18,title:"Naqoyqatsi — Naqoyqatsi",year:2002,duration_secs:315,genre:"film_score",dims:{joy:.15,sorrow:.80,intensity:.75,density:.70,velocity:.50},note:"Cello solo by Yo-Yo Ma. Deeply mournful."},
+  {id:19,title:"Etude No. 6",year:1994,duration_secs:195,genre:"keyboard",dims:{joy:.80,sorrow:.10,intensity:.70,density:.65,velocity:.95},note:"Fast, technically demanding, exhilarating."},
+  {id:20,title:"Façades",year:1982,duration_secs:285,genre:"chamber",dims:{joy:.45,sorrow:.60,intensity:.30,density:.25,velocity:.20},note:"From Glassworks. Saxophone and strings. Dusk-like."}
+];
+
+// ── Engine (mirrors Rust logic exactly) ──────────────────────────────────────
+const DIMS = ['joy','sorrow','intensity','density','velocity'];
+
+function midpoint(range){ return (range.lo + range.hi) / 2; }
+
+function contains(range, v){ return v >= range.lo && v <= range.hi; }
+
+function weightedDistSq(a, b, w){
+  return DIMS.reduce((sum, d) => sum + w[d] * (a[d] - b[d]) ** 2, 0);
+}
+
+function passesFilters(track, query){
+  const d = track.dims;
+  return DIMS.every(dim => contains(query[dim], d[dim]))
+    && track.year >= query.yearRange[0]
+    && track.year <= query.yearRange[1]
+    && (query.genre === 'all' || track.genre === query.genre);
+}
+
+function search(tracks, query){
+  const target = Object.fromEntries(DIMS.map(d => [d, midpoint(query[d])]));
+  const weights = Object.fromEntries(DIMS.map(d => [d, 1]));
+  const scored = tracks
+    .filter(t => passesFilters(t, query))
+    .map(t => ({ track: t, dist: Math.sqrt(weightedDistSq(t.dims, target, weights)) }))
+    .sort((a, b) => a.dist - b.dist)
+    .slice(0, query.topK);
+  const maxDist = scored.length ? scored[scored.length - 1].dist : 1;
+  return scored.map(s => ({ ...s, score: 1 - s.dist / Math.max(maxDist, 1e-9) }));
+}
+
+function durStr(secs){ return `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`; }
+
+function genreLabel(g){ return {opera:'Opera',film_score:'Film Score',chamber:'Chamber',orchestral:'Orchestral',keyboard:'Keyboard',choral:'Choral',other:'Other'}[g] || g; }
+
+// ── Unit Tests ────────────────────────────────────────────────────────────────
+function makeCatalog(){
+  return [
+    {id:1,title:'Track 1',year:1980,genre:'chamber',dims:{joy:.9,sorrow:.1,intensity:.5,density:.5,velocity:.5}},
+    {id:2,title:'Track 2',year:1985,genre:'opera',dims:{joy:.1,sorrow:.9,intensity:.5,density:.5,velocity:.5}},
+    {id:3,title:'Track 3',year:2000,genre:'film_score',dims:{joy:.5,sorrow:.5,intensity:.5,density:.5,velocity:.5}},
+    {id:4,title:'Track 4',year:1990,genre:'chamber',dims:{joy:.8,sorrow:.2,intensity:.5,density:.5,velocity:.5}}
+  ];
+}
+
+function assert(cond, msg){ if(!cond) throw new Error(msg); }
+
+const TESTS = [
+  {
+    name: 'search_returns_closest_to_target',
+    fn(){
+      const tracks = makeCatalog();
+      const q = { joy:{lo:.8,hi:1}, sorrow:{lo:0,hi:.2}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'all', topK:10 };
+      const r = search(tracks, q);
+      assert(r.length > 0, 'no results');
+      assert(r[0].track.id === 1, `expected id 1, got ${r[0].track.id}`);
+    }
+  },
+  {
+    name: 'genre_filter_excludes_non_matching',
+    fn(){
+      const tracks = makeCatalog();
+      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'opera', topK:10 };
+      const r = search(tracks, q);
+      assert(r.every(x => x.track.genre === 'opera'), 'non-opera slipped through');
+    }
+  },
+  {
+    name: 'year_range_filter_works',
+    fn(){
+      const tracks = makeCatalog();
+      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1984,1992], genre:'all', topK:10 };
+      const r = search(tracks, q);
+      const ids = r.map(x => x.track.id);
+      assert(ids.includes(2), 'track 2 (1985) should be included');
+      assert(ids.includes(4), 'track 4 (1990) should be included');
+      assert(!ids.includes(1), 'track 1 (1980) should be excluded');
+      assert(!ids.includes(3), 'track 3 (2000) should be excluded');
+    }
+  },
+  {
+    name: 'top_k_limits_results',
+    fn(){
+      const tracks = makeCatalog();
+      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'all', topK:2 };
+      const r = search(tracks, q);
+      assert(r.length <= 2, `expected ≤2, got ${r.length}`);
+    }
+  },
+  {
+    name: 'scores_are_normalised_0_to_1',
+    fn(){
+      const tracks = makeCatalog();
+      const q = { joy:{lo:0,hi:1}, sorrow:{lo:0,hi:1}, intensity:{lo:0,hi:1}, density:{lo:0,hi:1}, velocity:{lo:0,hi:1}, yearRange:[1960,2030], genre:'all', topK:10 };
+      const r = search(tracks, q);
+      assert(r.every(x => x.score >= 0 && x.score <= 1), 'score out of [0,1]');
+      assert(Math.abs(r[0].score - 1) < 1e-9, `best score should be 1, got ${r[0].score}`);
+    }
+  },
+  {
+    name: 'dim_range_midpoint',
+    fn(){
+      const r = {lo:.2, hi:.8};
+      assert(Math.abs(midpoint(r) - .5) < 1e-9, `expected 0.5, got ${midpoint(r)}`);
+    }
+  },
+  {
+    name: 'weighted_dist_sq_zero_for_same_point',
+    fn(){
+      const d = {joy:.3,sorrow:.7,intensity:.5,density:.2,velocity:.9};
+      const w = {joy:1,sorrow:1,intensity:1,density:1,velocity:1};
+      assert(weightedDistSq(d, d, w) < 1e-12, 'distance to self should be 0');
+    }
+  }
+];
+
+let testResults = TESTS.map(t => ({ name: t.name, status: 'pending', error: null }));
+
+function runTests(){
+  testResults = TESTS.map(t => {
+    try { t.fn(); return { name: t.name, status: 'pass', error: null }; }
+    catch(e) { return { name: t.name, status: 'fail', error: e.message }; }
+  });
+  renderTests();
+}
+
+function renderTests(){
+  const suite = document.getElementById('test-suite');
+  suite.innerHTML = testResults.map(r => `
+    <div class="test ${r.status}">
+      <span class="icon"></span>
+      <span class="name">${r.name}</span>
+      <span class="result">${r.error || ''}</span>
+    </div>
+  `).join('');
+
+  const passed = testResults.filter(r => r.status === 'pass').length;
+  const failed = testResults.filter(r => r.status === 'fail').length;
+  const pending = testResults.filter(r => r.status === 'pending').length;
+  const summary = document.getElementById('test-summary');
+  summary.style.display = 'block';
+  summary.style.color = failed ? 'var(--red)' : pending ? 'var(--muted)' : 'var(--green)';
+  summary.textContent = pending
+    ? `${TESTS.length} tests pending`
+    : `${passed} passed · ${failed} failed · ${TESTS.length} total`;
+}
+
+// ── Slider state ──────────────────────────────────────────────────────────────
+const state = {
+  joy:       {lo:0, hi:1},
+  sorrow:    {lo:0, hi:1},
+  intensity: {lo:0, hi:1},
+  density:   {lo:0, hi:1},
+  velocity:  {lo:0, hi:1},
+};
+
+function buildSliders(){
+  const container = document.getElementById('sliders');
+  DIMS.forEach(dim => {
+    const label = dim[0].toUpperCase() + dim.slice(1);
+    container.innerHTML += `
+      <div class="ge-slider">
+        <div class="ge-slider-header">
+          <span class="ge-slider-label">${label}</span>
+          <span class="ge-slider-values" id="${dim}-vals">0% – 100%</span>
+        </div>
+        <div class="ge-slider-track">
+          <div class="ge-fill" id="${dim}-fill"></div>
+          <input class="ge-range" type="range" min="0" max="100" value="0" id="${dim}-lo" oninput="onLo('${dim}')">
+          <input class="ge-range" type="range" min="0" max="100" value="100" id="${dim}-hi" oninput="onHi('${dim}')">
+        </div>
+      </div>`;
+  });
+}
+
+function onLo(dim){
+  const lo = parseInt(document.getElementById(`${dim}-lo`).value);
+  const hi = parseInt(document.getElementById(`${dim}-hi`).value);
+  if(lo >= hi){ document.getElementById(`${dim}-lo`).value = hi - 1; return; }
+  state[dim].lo = lo / 100;
+  updateSliderUI(dim);
+  renderResults();
+}
+function onHi(dim){
+  const lo = parseInt(document.getElementById(`${dim}-lo`).value);
+  const hi = parseInt(document.getElementById(`${dim}-hi`).value);
+  if(hi <= lo){ document.getElementById(`${dim}-hi`).value = lo + 1; return; }
+  state[dim].hi = hi / 100;
+  updateSliderUI(dim);
+  renderResults();
+}
+function updateSliderUI(dim){
+  const r = state[dim];
+  document.getElementById(`${dim}-vals`).textContent = `${Math.round(r.lo*100)}% – ${Math.round(r.hi*100)}%`;
+  const fill = document.getElementById(`${dim}-fill`);
+  fill.style.left = `${r.lo*100}%`;
+  fill.style.width = `${(r.hi-r.lo)*100}%`;
+}
+
+function onYearLo(){
+  const lo = parseInt(document.getElementById('year-lo').value);
+  const hi = parseInt(document.getElementById('year-hi').value);
+  if(lo >= hi){ document.getElementById('year-lo').value = hi - 1; return; }
+  updateYearUI();
+  renderResults();
+}
+function onYearHi(){
+  const lo = parseInt(document.getElementById('year-lo').value);
+  const hi = parseInt(document.getElementById('year-hi').value);
+  if(hi <= lo){ document.getElementById('year-hi').value = lo + 1; return; }
+  updateYearUI();
+  renderResults();
+}
+function updateYearUI(){
+  const lo = parseInt(document.getElementById('year-lo').value);
+  const hi = parseInt(document.getElementById('year-hi').value);
+  document.getElementById('year-label').textContent = `${lo} – ${hi}`;
+  const span = 2030 - 1960;
+  const fill = document.getElementById('year-fill');
+  fill.style.left = `${(lo-1960)/span*100}%`;
+  fill.style.width = `${(hi-lo)/span*100}%`;
+}
+
+function renderResults(){
+  const query = {
+    ...state,
+    yearRange: [
+      parseInt(document.getElementById('year-lo').value),
+      parseInt(document.getElementById('year-hi').value)
+    ],
+    genre: document.getElementById('genre-filter').value,
+    topK: 12
+  };
+  const results = search(CATALOG, query);
+  const el = document.getElementById('results');
+  if(!results.length){ el.innerHTML = '<p class="ge-empty">No pieces match the current filters.</p>'; return; }
+  el.innerHTML = results.map(({track:t, score}) => {
+    const dots = DIMS.map(d => {
+      const s = Math.round(6 + t.dims[d] * 14);
+      const o = (0.3 + t.dims[d] * 0.7).toFixed(2);
+      return `<span class="ge-dim" title="${d}: ${Math.round(t.dims[d]*100)}%">
+        <span class="ge-dim-label">${d[0].toUpperCase()}</span>
+        <span class="ge-dot" style="width:${s}px;height:${s}px;opacity:${o}"></span>
+      </span>`;
+    }).join('');
+    return `<div class="ge-track">
+      <div class="ge-track-meta">
+        <span class="ge-track-title">${t.title}</span>
+        <span class="ge-track-info">${t.year} · ${genreLabel(t.genre)} · ${durStr(t.duration_secs)}</span>
+      </div>
+      <div class="ge-score-bg">
+        <div class="ge-score-bar" style="width:${(score*100).toFixed(1)}%"></div>
+        <span class="ge-score-label">${Math.round(score*100)}%</span>
+      </div>
+      <div class="ge-dims">${dots}</div>
+      ${t.note ? `<p class="ge-note">${t.note}</p>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['tests','engine'][i] === id));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`panel-${id}`).classList.add('active');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildSliders();
+DIMS.forEach(d => updateSliderUI(d));
+updateYearUI();
+renderResults();
+renderTests();
+</script>
+</body>
 </html>
