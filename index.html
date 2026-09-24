@@ -52,11 +52,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13
 .ge-slider-label{font-size:.75rem}
 .ge-slider-values{font-size:.65rem;color:var(--muted)}
 .ge-slider-track{position:relative;height:32px;display:flex;align-items:center}
-.ge-fill{position:absolute;height:4px;background:var(--accent);border-radius:2px;pointer-events:none;top:50%;transform:translateY(-50%)}
-.ge-range{position:absolute;width:100%;height:4px;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;outline:none;top:50%;transform:translateY(-50%)}
+.ge-fill{position:absolute;height:4px;background:var(--accent);border-radius:2px;pointer-events:none;top:50%;transform:translateY(-50%);z-index:1}
+.ge-range{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-appearance:none;appearance:none;background:transparent;pointer-events:none;outline:none;margin:0}
 .ge-range::-webkit-slider-runnable-track{height:4px;background:var(--border);border-radius:2px}
-.ge-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-hi);border:2px solid var(--bg);cursor:pointer;pointer-events:all;margin-top:-5px}
-.ge-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent-hi);border:2px solid var(--bg);cursor:pointer;pointer-events:all}
+.ge-range::-moz-range-track{height:4px;background:var(--border);border-radius:2px}
+.ge-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent-hi);border:2px solid var(--bg);cursor:pointer;pointer-events:all;margin-top:-5px;position:relative;z-index:2}
+.ge-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent-hi);border:2px solid var(--bg);cursor:pointer;pointer-events:all;position:relative;z-index:2}
 
 /* genre select */
 .ge-select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.4rem .6rem;border-radius:6px;font-family:var(--mono);font-size:.75rem;width:100%;cursor:pointer;outline:none}
@@ -197,8 +198,12 @@ function search(tracks, query){
     .map(t => ({ track: t, dist: Math.sqrt(weightedDistSq(t.dims, target, weights)) }))
     .sort((a, b) => a.dist - b.dist)
     .slice(0, query.topK);
-  const maxDist = scored.length ? scored[scored.length - 1].dist : 1;
-  return scored.map(s => ({ ...s, score: 1 - s.dist / Math.max(maxDist, 1e-9) }));
+  
+  const maxDist = scored.length ? scored[scored.length - 1].dist : 0;
+  return scored.map(s => ({ 
+    ...s, 
+    score: maxDist === 0 ? 1 : 1 - s.dist / maxDist 
+  }));
 }
 
 function durStr(secs){ return `${Math.floor(secs/60)}:${String(secs%60).padStart(2,'0')}`; }
@@ -346,21 +351,29 @@ function buildSliders(){
 }
 
 function onLo(dim){
-  const lo = parseInt(document.getElementById(`${dim}-lo`).value);
+  let lo = parseInt(document.getElementById(`${dim}-lo`).value);
   const hi = parseInt(document.getElementById(`${dim}-hi`).value);
-  if(lo >= hi){ document.getElementById(`${dim}-lo`).value = hi - 1; return; }
+  if(lo >= hi){
+    lo = hi - 1;
+    document.getElementById(`${dim}-lo`).value = lo;
+  }
   state[dim].lo = lo / 100;
   updateSliderUI(dim);
   renderResults();
 }
+
 function onHi(dim){
   const lo = parseInt(document.getElementById(`${dim}-lo`).value);
-  const hi = parseInt(document.getElementById(`${dim}-hi`).value);
-  if(hi <= lo){ document.getElementById(`${dim}-hi`).value = lo + 1; return; }
+  let hi = parseInt(document.getElementById(`${dim}-hi`).value);
+  if(hi <= lo){
+    hi = lo + 1;
+    document.getElementById(`${dim}-hi`).value = hi;
+  }
   state[dim].hi = hi / 100;
   updateSliderUI(dim);
   renderResults();
 }
+
 function updateSliderUI(dim){
   const r = state[dim];
   document.getElementById(`${dim}-vals`).textContent = `${Math.round(r.lo*100)}% – ${Math.round(r.hi*100)}%`;
@@ -370,19 +383,27 @@ function updateSliderUI(dim){
 }
 
 function onYearLo(){
-  const lo = parseInt(document.getElementById('year-lo').value);
+  let lo = parseInt(document.getElementById('year-lo').value);
   const hi = parseInt(document.getElementById('year-hi').value);
-  if(lo >= hi){ document.getElementById('year-lo').value = hi - 1; return; }
+  if(lo >= hi){
+    lo = hi - 1;
+    document.getElementById('year-lo').value = lo;
+  }
   updateYearUI();
   renderResults();
 }
+
 function onYearHi(){
   const lo = parseInt(document.getElementById('year-lo').value);
-  const hi = parseInt(document.getElementById('year-hi').value);
-  if(hi <= lo){ document.getElementById('year-hi').value = lo + 1; return; }
+  let hi = parseInt(document.getElementById('year-hi').value);
+  if(hi <= lo){
+    hi = lo + 1;
+    document.getElementById('year-hi').value = hi;
+  }
   updateYearUI();
   renderResults();
 }
+
 function updateYearUI(){
   const lo = parseInt(document.getElementById('year-lo').value);
   const hi = parseInt(document.getElementById('year-hi').value);
